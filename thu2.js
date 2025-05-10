@@ -1,13 +1,23 @@
-export default {
-  async fetch(request, env, ctx) {
-    const country = request.cf?.country || 'XX'
-    const url = new URL(request.url)
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-    if (country === 'ID') {
-      url.hostname = 'google.com'  // ← thay domain phụ tại đây
-      return fetch(url.toString(), request)
-    }
+async function handleRequest(request) {
+  const url = new URL(request.url)
+  // Tạo URL mới trỏ đến trang gốc
+  const targetUrl = `https://win88slotlogin.com${url.pathname}${url.search}`
 
-    return fetch(request)
-  }
+  // Proxy yêu cầu gốc và trả về cho client
+  const response = await fetch(targetUrl, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body
+  })
+
+  // Trả về phản hồi từ máy chủ gốc
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers
+  })
 }
